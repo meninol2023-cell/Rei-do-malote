@@ -1,56 +1,74 @@
-const { Client, GatewayIntentBits } = require("discord.js");
-const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require("@discordjs/voice");
-const play = require("play-dl");
+const { Client, GatewayIntentBits } = require("discord.js")
+const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require("@discordjs/voice")
+const play = require("play-dl")
 
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildVoiceStates
-  ]
-});
+intents: [
+GatewayIntentBits.Guilds,
+GatewayIntentBits.GuildMessages,
+GatewayIntentBits.MessageContent,
+GatewayIntentBits.GuildVoiceStates
+]
+})
 
-client.on("ready", () => {
-  console.log("Bot de música online!");
-});
+const prefix = "!"
 
-client.on("messageCreate", async (message) => {
-  if (!message.content.startsWith("!")) return;
+client.once("ready", () => {
+console.log("Bot online!")
+})
 
-  const args = message.content.slice(1).split(" ");
-  const cmd = args.shift();
+client.on("messageCreate", async message => {
 
-  if (cmd === "play") {
+if(message.author.bot) return
+if(!message.content.startsWith(prefix)) return
 
-    const canal = message.member.voice.channel;
-    if (!canal) return message.reply("Entre em um canal de voz!");
+const args = message.content.slice(prefix.length).trim().split(/ +/)
+const comando = args.shift().toLowerCase()
 
-    const connection = joinVoiceChannel({
-      channelId: canal.id,
-      guildId: message.guild.id,
-      adapterCreator: message.guild.voiceAdapterCreator,
-    });
+// PLAY
+if(comando === "play"){
 
-    const player = createAudioPlayer();
+const voiceChannel = message.member.voice.channel
+if(!voiceChannel) return message.reply("Entre em um canal de voz!")
 
-    const yt = await play.stream(args[0]);
+const query = args.join(" ")
 
-    const resource = createAudioResource(yt.stream, {
-      inputType: yt.type
-    });
+if(!query) return message.reply("Coloque o nome da música ou link")
 
-    player.play(resource);
-    connection.subscribe(player);
+const connection = joinVoiceChannel({
+channelId: voiceChannel.id,
+guildId: message.guild.id,
+adapterCreator: message.guild.voiceAdapterCreator
+})
 
-    message.reply("🎵 Tocando música!");
-  }
+const stream = await play.stream(query)
 
-  if (cmd === "stop") {
-    message.reply("⏹️ Música parada.");
-    process.exit();
-  }
+const resource = createAudioResource(stream.stream, {
+inputType: stream.type
+})
 
-});
+const player = createAudioPlayer()
 
-client.login(MTQ5MDg3MTMyMDAxODE1Nzc1Mg.G1-Qg3.nicVxMjKZrJjd9kJFQbXI52qpE3cypQw_7lRNU);
+connection.subscribe(player)
+player.play(resource)
+
+message.reply("🎵 Tocando agora!")
+
+}
+
+// STOP
+if(comando === "stop"){
+
+const voiceChannel = message.member.voice.channel
+if(!voiceChannel) return message.reply("Entre na call")
+
+voiceChannel.leave()
+
+message.reply("⏹️ Música parada")
+
+}
+
+})
+
+// TOKEN
+client.login(process.env.TOKEN)
