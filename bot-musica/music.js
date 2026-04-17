@@ -1,3 +1,11 @@
+const play = require("play-dl");
+
+play.setToken({
+  youtube: {
+    cookie: "",
+  },
+});
+
 const {
   joinVoiceChannel,
   createAudioPlayer,
