@@ -15,7 +15,7 @@ async function execute(message, args) {
   if (!voiceChannel)
     return message.reply("❌ Entre em um canal de voz!");
 
-  const permissions = voiceChannel.permissionsFor(message.client.user);
+  const permissions = voiceChannel.permissionsFor(message.guild.members.me);
   if (!permissions.has("Connect") || !permissions.has("Speak"))
     return message.reply("❌ Sem permissão pra entrar na call!");
 
