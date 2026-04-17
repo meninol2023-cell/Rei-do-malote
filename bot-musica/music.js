@@ -1,0 +1,134 @@
+const {
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource,
+  AudioPlayerStatus
+} = require("@discordjs/voice");
+
+const ytdl = require("ytdl-core");
+
+const queue = new Map();
+
+// ================= PLAY =================
+async function execute(message, args) {
+  const voiceChannel = message.member.voice.channel;
+  if (!voiceChannel)
+    return message.reply("❌ Entre em um canal de voz!");
+
+  const permissions = voiceChannel.permissionsFor(message.guild.members.me);
+  if (!permissions.has("Connect") || !permissions.has("Speak"))
+    return message.reply("❌ Sem permissão!");
+
+  const url = args[0];
+  if (!ytdl.validateURL(url))
+    return message.reply("❌ Link inválido!");
+
+  let serverQueue = queue.get(message.guild.id);
+
+  const song = {
+    title: "Música",
+    url: url
+  };
+
+  if (!serverQueue) {
+    const queueConstruct = {
+      textChannel: message.channel,
+      voiceChannel: voiceChannel,
+      connection: null,
+      player: createAudioPlayer(),
+      songs: [],
+      loop: false
+    };
+
+    queue.set(message.guild.id, queueConstruct);
+    queueConstruct.songs.push(song);
+
+    try {
+      const connection = joinVoiceChannel({
+        channelId: voiceChannel.id,
+        guildId: message.guild.id,
+        adapterCreator: message.guild.voiceAdapterCreator
+      });
+
+      queueConstruct.connection = connection;
+      connection.subscribe(queueConstruct.player);
+
+      playSong(message.guild, queueConstruct.songs[0]);
+
+    } catch (err) {
+      console.error(err);
+      queue.delete(message.guild.id);
+      return message.reply("❌ Erro ao entrar na call.");
+    }
+
+  } else {
+    serverQueue.songs.push(song);
+    return message.channel.send("🎵 Música adicionada na fila!");
+  }
+}
+
+// ================= TOCAR =================
+function playSong(guild, song) {
+  const serverQueue = queue.get(guild.id);
+
+  if (!song) {
+    serverQueue.connection.destroy();
+    queue.delete(guild.id);
+    return;
+  }
+
+  try {
+    const stream = ytdl(song.url, {
+      filter: "audioonly",
+      highWaterMark: 1 << 25
+    });
+
+    const resource = createAudioResource(stream);
+
+    serverQueue.player.play(resource);
+    serverQueue.textChannel.send("▶️ Tocando música!");
+
+    serverQueue.player.once(AudioPlayerStatus.Idle, () => {
+      if (!serverQueue.loop) serverQueue.songs.shift();
+      playSong(guild, serverQueue.songs[0]);
+    });
+
+  } catch (err) {
+    console.error("ERRO STREAM:", err);
+    serverQueue.textChannel.send("❌ Erro ao tocar música.");
+  }
+}
+
+// ================= CONTROLES =================
+function skip(message) {
+  const serverQueue = queue.get(message.guild.id);
+  if (!serverQueue) return;
+  serverQueue.player.stop();
+}
+
+function stop(message) {
+  const serverQueue = queue.get(message.guild.id);
+  if (!serverQueue) return;
+  serverQueue.songs = [];
+  serverQueue.player.stop();
+}
+
+function pause(message) {
+  const serverQueue = queue.get(message.guild.id);
+  if (!serverQueue) return;
+  serverQueue.player.pause();
+}
+
+function resume(message) {
+  const serverQueue = queue.get(message.guild.id);
+  if (!serverQueue) return;
+  serverQueue.player.unpause();
+}
+
+module.exports = {
+  execute,
+  skip,
+  stop,
+  pause,
+  resume
+};
