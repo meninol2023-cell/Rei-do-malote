@@ -1,3 +1,6 @@
+process.on("unhandledRejection", console.error);
+process.on("uncaughtException", console.error);
+
 const play = require("play-dl");
 
 play.setToken({
@@ -30,11 +33,13 @@ async function execute(message, args) {
   const url = args[0];
   if (!url) return message.reply("❌ Envie o link da música!");
 
-  const songInfo = await play.video_info(url);
-  const song = {
-    title: songInfo.video_details.title,
-    url: songInfo.video_details.url
-  };
+  let songInfo;
+try {
+  songInfo = await play.video_info(url);
+} catch (err) {
+  console.error("ERRO AO PEGAR VIDEO:", err);
+  return message.reply("❌ Não consegui pegar essa música.");
+}
 
   let serverQueue = queue.get(message.guild.id);
 
@@ -82,7 +87,13 @@ async function playSong(guild, song) {
     return;
   }
 
-  const stream = await play.stream(song.url);
+  let stream;
+try {
+  stream = await play.stream(song.url);
+} catch (err) {
+  console.error("ERRO STREAM:", err);
+  return serverQueue.textChannel.send("❌ Erro ao tocar música.");
+}
 
   const resource = createAudioResource(stream.stream, {
     inputType: stream.type
