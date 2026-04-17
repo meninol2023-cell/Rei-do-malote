@@ -1,4 +1,12 @@
 const { 
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource,
+  AudioPlayerStatus,
+  NoSubscriberBehavior
+} = require("@discordjs/voice");
+
+const { 
   Client, 
   GatewayIntentBits 
 } = require("discord.js");
@@ -84,9 +92,11 @@ if (!url || (!url.includes("youtube.com") && !url.includes("youtu.be"))) {
       textChannel: message.channel,
       voiceChannel: voiceChannel,
       connection: null,
-      player: createAudioPlayer(),
-      songs: [],
-    };
+      player: createAudioPlayer({
+  behaviors: {
+    noSubscriber: NoSubscriberBehavior.Play
+  }
+}),
 
     queue.set(message.guild.id, queueConstruct);
     queueConstruct.songs.push(song);
