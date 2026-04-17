@@ -132,9 +132,7 @@ async function playSong(guild, song) {
   discordPlayerCompatibility: true
 });
 
-const resource = createAudioResource(stream.stream, {
-  inputType: stream.type,
-});
+const resource = createAudioResource(stream.stream);
 
     serverQueue.player.play(resource);
     serverQueue.textChannel.send("▶️ Tocando música!");
