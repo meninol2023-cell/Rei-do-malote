@@ -68,7 +68,7 @@ async function execute(message, args) {
 
   const url = args[0];
 
-  if (!url.includes("youtube.com") && !url.includes("youtu.be"))
+  if (!url.includes("youtube.com") || !url.includes("youtu.be"))
     return message.reply("❌ Link inválido!");
 
   let serverQueue = queue.get(message.guild.id);
@@ -92,10 +92,17 @@ async function execute(message, args) {
 
     try {
       const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: message.guild.id,
-        adapterCreator: message.guild.voiceAdapterCreator,
-      });
+  channelId: voiceChannel.id,
+  guildId: message.guild.id,
+  adapterCreator: message.guild.voiceAdapterCreator,
+});
+
+queueConstruct.connection = connection;
+
+// 🔥 ESSA LINHA É OBRIGATÓRIA
+connection.subscribe(queueConstruct.player);
+
+playSong(message.guild, queueConstruct.songs[0]);
 
       queueConstruct.connection = connection;
       connection.subscribe(queueConstruct.player);
@@ -114,7 +121,7 @@ async function execute(message, args) {
 
 // ================= TOCAR =================
 
-function playSong(guild, song) {
+async function playSong(guild, song) {
   const serverQueue = queue.get(guild.id);
 
   if (!song) {
