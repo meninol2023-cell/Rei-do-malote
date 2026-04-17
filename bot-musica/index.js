@@ -7,7 +7,7 @@ const {
   joinVoiceChannel,
   createAudioPlayer,
   createAudioResource,
-  AudioPlayerStatus
+  AudioPlayerStatus,
   NoSubscriberBehavior
 } = require("@discordjs/voice");
 
