@@ -10,7 +10,7 @@ const {
   AudioPlayerStatus
 } = require("@discordjs/voice");
 
-const ytdl = require("ytdl-core");
+const play = require("play-dl");
 
 const express = require("express");
 
@@ -68,7 +68,7 @@ async function execute(message, args) {
 
   const url = args[0];
 
-  if (!ytdl.validateURL(url))
+  if (!url.includes("youtube.com") && !url.includes("youtu.be"))
     return message.reply("❌ Link inválido!");
 
   let serverQueue = queue.get(message.guild.id);
@@ -124,13 +124,10 @@ function playSong(guild, song) {
   }
 
   try {
-    const stream = ytdl(song.url, {
-      filter: "audioonly",
-      highWaterMark: 1 << 25,
-    });
+    const stream = await play.stream(song.url);
 
-    const resource = createAudioResource(stream, {
-  inputType: 'arbitrary'
+const resource = createAudioResource(stream.stream, {
+  inputType: stream.type,
 });
 
     serverQueue.player.play(resource);
