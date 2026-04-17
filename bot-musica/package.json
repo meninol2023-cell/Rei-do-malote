@@ -1,0 +1,15 @@
+{
+  "name": "Rei do malote",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node bot-musica/index.js"
+  },
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "discord.js": "^14.0.0",
+    "express": "^4.18.2"
+  }
+}
