@@ -84,14 +84,16 @@ if (!isValid) {
 
   if (!serverQueue) {
     const queueConstruct = {
-      textChannel: message.channel,
-      voiceChannel: voiceChannel,
-      connection: null,
-      player: createAudioPlayer({
-  behaviors: {
-    noSubscriber: NoSubscriberBehavior.Play
-  }
-}),
+  textChannel: message.channel,
+  voiceChannel: voiceChannel,
+  connection: null,
+  player: createAudioPlayer({
+    behaviors: {
+      noSubscriber: NoSubscriberBehavior.Play
+    }
+  }),
+  songs: []
+};
 
     queue.set(message.guild.id, queueConstruct);
     queueConstruct.songs.push(song);
