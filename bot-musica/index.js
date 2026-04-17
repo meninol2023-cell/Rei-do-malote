@@ -1,12 +1,4 @@
 const { 
-  joinVoiceChannel,
-  createAudioPlayer,
-  createAudioResource,
-  AudioPlayerStatus,
-  NoSubscriberBehavior
-} = require("@discordjs/voice");
-
-const { 
   Client, 
   GatewayIntentBits 
 } = require("discord.js");
