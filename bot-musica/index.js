@@ -129,7 +129,9 @@ function playSong(guild, song) {
       highWaterMark: 1 << 25,
     });
 
-    const resource = createAudioResource(stream);
+    const resource = createAudioResource(stream, {
+  inputType: 'arbitrary'
+});
 
     serverQueue.player.play(resource);
     serverQueue.textChannel.send("▶️ Tocando música!");
