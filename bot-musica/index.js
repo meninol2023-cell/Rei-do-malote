@@ -68,8 +68,9 @@ async function execute(message, args) {
 
   const url = args[0];
 
-  if (!url.includes("youtube.com") && !url.includes("youtu.be"))
+if (!url || (!url.includes("youtube.com") && !url.includes("youtu.be"))) {
   return message.reply("❌ Link inválido!");
+}
 
   let serverQueue = queue.get(message.guild.id);
 
@@ -127,7 +128,9 @@ async function playSong(guild, song) {
   }
 
   try {
-    const stream = await play.stream(song.url);
+    const stream = await play.stream(song.url, {
+  discordPlayerCompatibility: true
+});
 
 const resource = createAudioResource(stream.stream, {
   inputType: stream.type,
