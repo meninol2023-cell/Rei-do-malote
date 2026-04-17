@@ -68,7 +68,9 @@ async function execute(message, args) {
 
   const url = args[0];
 
-if (!url || (!url.includes("youtube.com") && !url.includes("youtu.be"))) {
+const isValid = await play.validate(url);
+
+if (!isValid) {
   return message.reply("❌ Link inválido!");
 }
 
