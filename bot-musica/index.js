@@ -13,6 +13,8 @@ const {
 
 const play = require("play-dl");
 
+const ffmpeg = require("ffmpeg-static");
+
 const express = require("express");
 
 const app = express();
@@ -108,6 +110,7 @@ if (!isValid) {
 queueConstruct.connection = connection;
 
 // 🔥 ESSA LINHA É OBRIGATÓRIA
+      
 connection.subscribe(queueConstruct.player);
 
 playSong(message.guild, queueConstruct.songs[0]);
@@ -139,8 +142,10 @@ async function playSong(guild, song) {
   discordPlayerCompatibility: true
 });
 
-const resource = createAudioResource(stream.stream);
-
+    const resource = createAudioResource(stream.stream, {
+  inputType: stream.type
+});
+    
     serverQueue.player.play(resource);
     serverQueue.textChannel.send("▶️ Tocando música!");
 
