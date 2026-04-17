@@ -146,6 +146,13 @@ function loop(message) {
   );
 }
 
+try {
+  const stream = await play.stream(song.url);
+} catch (err) {
+  console.error("ERRO PLAY-DL:", err);
+  return serverQueue.textChannel.send("❌ Erro ao carregar música.");
+}
+
 module.exports = {
   execute,
   skip,
