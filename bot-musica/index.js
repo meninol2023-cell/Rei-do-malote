@@ -8,6 +8,7 @@ const {
   createAudioPlayer,
   createAudioResource,
   AudioPlayerStatus
+  NoSubscriberBehavior
 } = require("@discordjs/voice");
 
 const play = require("play-dl");
